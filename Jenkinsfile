@@ -5,6 +5,11 @@ pipeline {
         maven 'Maven'
     }
 
+    environment {
+        // Jenkins Secret Text credential ID
+        SONAR_TOKEN = credentials('sonar-token')
+    }
+
     stages {
 
         stage('Checkout') {
@@ -22,7 +27,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar'
+                    sh '''
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=secure-login-app \
+                          -Dsonar.host.url=http://host.docker.internal:9000 \
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
