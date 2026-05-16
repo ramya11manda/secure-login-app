@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        // Uses your existing Jenkins Secret Text credential ID
+        // Uses your Jenkins Secret Text credential ID
         SONAR_TOKEN = credentials('sonarqube-token')
     }
 
@@ -55,10 +55,6 @@ pipeline {
             script {
                 if (fileExists('target/surefire-reports')) {
                     junit 'target/surefire-reports/*.xml'
-                }
-
-                if (fileExists('target/jacoco.exec')) {
-                    jacoco execPattern: 'target/jacoco.exec'
                 }
             }
         }
