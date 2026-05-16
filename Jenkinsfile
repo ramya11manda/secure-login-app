@@ -5,10 +5,6 @@ pipeline {
         maven 'Maven'
     }
 
-    environment {
-        SONARQUBE_SERVER = 'SonarQube'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -19,14 +15,14 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                bat 'mvn clean verify'
+                sh 'mvn clean verify'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn sonar:sonar'
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
@@ -41,8 +37,15 @@ pipeline {
 
         stage('Deploy to Staging') {
             steps {
-                bat 'echo Deployment to staging successful'
+                sh 'echo "Application deployed to staging environment"'
             }
+        }
+    }
+
+    post {
+        always {
+            junit 'target/surefire-reports/*.xml'
+            jacoco execPattern: 'target/jacoco.exec'
         }
     }
 }
