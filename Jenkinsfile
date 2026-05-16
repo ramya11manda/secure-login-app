@@ -6,8 +6,8 @@ pipeline {
     }
 
     environment {
-        // Jenkins Secret Text credential ID
-        SONAR_TOKEN = credentials('sonar-token')
+        // Uses your existing Jenkins Secret Text credential ID
+        SONAR_TOKEN = credentials('sonarqube-token')
     }
 
     stages {
@@ -29,9 +29,7 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
                         mvn sonar:sonar \
-                          -Dsonar.projectKey=secure-login-app \
-                          -Dsonar.host.url=http://host.docker.internal:9000 \
-                          -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.token=$SONAR_TOKEN
                     '''
                 }
             }
@@ -54,8 +52,15 @@ pipeline {
 
     post {
         always {
-            junit 'target/surefire-reports/*.xml'
-            jacoco execPattern: 'target/jacoco.exec'
+            script {
+                if (fileExists('target/surefire-reports')) {
+                    junit 'target/surefire-reports/*.xml'
+                }
+
+                if (fileExists('target/jacoco.exec')) {
+                    jacoco execPattern: 'target/jacoco.exec'
+                }
+            }
         }
     }
 }
